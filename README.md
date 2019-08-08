@@ -20,25 +20,25 @@ $ export KOALA_REDIS_PASSWORD=
 Application Endpoints
 
 ```console
-# App info
+# Current host info
 $ curl http://localhost:8080/ -v
 
-# Health check
+# Current host health check
 $ curl http://localhost:8080/_health -v
 
-# Change app state
+# Change all hosts state
 $ curl http://localhost:8080/_change -v
 
-# Get current state
+# Get current host state
 $ curl http://localhost:8080/_state -v
 
-# Get the host down
+# Get current host down
 $ curl http://localhost:8080/_hostup -v
 
-# Get the host up
+# Get current host up
 $ curl http://localhost:8080/_hostdown -v
 
-# Get the all hosts up
+# Get all hosts up
 $ curl http://localhost:8080/_kindup -v
 
 # Get all hosts down
