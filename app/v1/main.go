@@ -52,9 +52,9 @@ func main() {
 		)
 
 		c.JSON(http.StatusOK, gin.H{
-			"Time": time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			"Hostname": host,
-			"Version": version,
+			"TIME": time.Now().Format("Mon Jan 2 15:04:05 2006"),
+			"HOSTNAME": host,
+			"VERSION": version,
 		})
 	})
 	r.GET("/favicon.ico", func(c *gin.Context) {
@@ -71,15 +71,15 @@ func main() {
 		hostHealth, _ := driver.Get(fmt.Sprintf("koala_host_health__%s", host))
 		kindHealth, _ := driver.Get("koala_kind_health")
 
-		if hostHealth == "down" || kindHealth == "down" {
+		if hostHealth == "DOWN" || kindHealth == "DOWN" {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
-				"status": "down",
+				"STATUS": "DOWN",
 			})
 			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"status": "up",
+			"STATUS": "UP",
 		})
 	})
 
@@ -103,10 +103,10 @@ func main() {
 		driver.Set("koala_state", strconv.Itoa(state), 0)
 
 		c.JSON(http.StatusOK, gin.H{
-			"Time": time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			"Hostname": host,
-			"Version": version,
-			"state": state,
+			"TIME": time.Now().Format("Mon Jan 2 15:04:05 2006"),
+			"HOSTNAME": host,
+			"VERSION": version,
+			"STATE": state,
 		})
 	})
 
@@ -122,10 +122,10 @@ func main() {
 		state, _ := strconv.Atoi(value)
 
 		c.JSON(http.StatusOK, gin.H{
-			"Time": time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			"Hostname": host,
-			"Version": version,
-			"state": state,
+			"TIME": time.Now().Format("Mon Jan 2 15:04:05 2006"),
+			"HOSTNAME": host,
+			"VERSION": version,
+			"STATE": state,
 		})
 	})
 
@@ -136,10 +136,10 @@ func main() {
 			version,
 		)
 
-		driver.Set(fmt.Sprintf("koala_host_health__%s", host), "up", 0)
+		driver.Set(fmt.Sprintf("koala_host_health__%s", host), "UP", 0)
 
 		c.JSON(http.StatusOK, gin.H{
-			"status": "done",
+			"STATUS": "DONE",
 		})
 	})
 
@@ -150,10 +150,10 @@ func main() {
 			version,
 		)
 
-		driver.Set(fmt.Sprintf("koala_host_health__%s", host), "down", 0)
+		driver.Set(fmt.Sprintf("koala_host_health__%s", host), "DOWN", 0)
 
 		c.JSON(http.StatusOK, gin.H{
-			"status": "done",
+			"STATUS": "DONE",
 		})
 	})
 
@@ -164,10 +164,10 @@ func main() {
 			version,
 		)
 
-		driver.Set("koala_kind_health", "up", 0)
+		driver.Set("koala_kind_health", "UP", 0)
 
 		c.JSON(http.StatusOK, gin.H{
-			"status": "done",
+			"STATUS": "DONE",
 		})
 	})
 
@@ -178,10 +178,10 @@ func main() {
 			version,
 		)
 
-		driver.Set("koala_kind_health", "down", 0)
+		driver.Set("koala_kind_health", "DOWN", 0)
 
 		c.JSON(http.StatusOK, gin.H{
-			"status": "done",
+			"STATUS": "DONE",
 		})
 	})
 
