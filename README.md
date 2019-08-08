@@ -8,6 +8,12 @@
 
 ### Application v1 Deployment:
 
+
+## References
+
+- [Kubernetes ConfigMaps and Secrets.](https://medium.com/google-cloud/kubernetes-configmaps-and-secrets-68d061f7ab5b)
+
+
 ## License
 
 © 2019, Clivern. Released under [MIT License](https://opensource.org/licenses/mit-license.php).
