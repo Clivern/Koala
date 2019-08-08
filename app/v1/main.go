@@ -13,16 +13,27 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/", HelloServer)
+	http.HandleFunc("/", Hello)
 	http.ListenAndServe(":8080", nil)
 }
 
-func HelloServer(w http.ResponseWriter, r *http.Request) {
+func Hello(w http.ResponseWriter, r *http.Request) {
 	host, _ := os.Hostname()
-	fmt.Fprintf(w, "Koala Version --> %s \nHostname --> %s", "1.0.0", host)
-	log.Printf("{\"Request\":\"%s\", \"time\":\"%s\", \"Hostname\":\"%s\"}",
+	version := "1.0.0"
+	fmt.Fprintf(w, "<title>Koala %s</title>", version)
+	fmt.Fprintf(w, "<pre>")
+	fmt.Fprintf(w, "{\"Method\": \"%s\", \"Path\":\"%s\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
+		r.Method,
 		r.URL.Path,
 		time.Now().Format("Mon Jan 2 15:04:05 2006"),
 		host,
+		version,
+	)
+	log.Printf("{\"Method\": \"%s\", \"Path\":\"%s\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
+		r.Method,
+		r.URL.Path,
+		time.Now().Format("Mon Jan 2 15:04:05 2006"),
+		host,
+		version,
 	)
 }
