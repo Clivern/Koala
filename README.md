@@ -42,7 +42,7 @@ $ curl http://localhost:8080/_hostdown -v
 $ curl http://localhost:8080/_kindup -v
 
 # Get all hosts down
-$curl http://localhost:8080/_kinddown -v
+$ curl http://localhost:8080/_kinddown -v
 ```
 
 
