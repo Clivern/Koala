@@ -6,7 +6,48 @@
 
 ## Documentation
 
-### Application v1 Deployment:
+### Application Version 1.0.0:
+
+Config the application
+
+```console
+$ export KOALA_PORT="8080"
+$ export KOALA_REDIS_HOST="127.0.0.1"
+$ export KOALA_REDIS_PORT="6379"
+$ export KOALA_REDIS_PASSWORD=
+```
+
+Application Endpoints
+
+```console
+# App info
+$ curl http://localhost:8080/ -v
+
+# Health check
+$ curl http://localhost:8080/_health -v
+
+# Change app state
+$ curl http://localhost:8080/_change -v
+
+# Get current state
+$ curl http://localhost:8080/_state -v
+
+# Get the host down
+$ curl http://localhost:8080/_hostup -v
+
+# Get the host up
+$ curl http://localhost:8080/_hostdown -v
+
+# Get the all hosts up
+$ curl http://localhost:8080/_kindup -v
+
+# Get all hosts down
+$curl http://localhost:8080/_kinddown -v
+```
+
+
+### Deployment Version 1.0.0:
+
 
 ## License
 

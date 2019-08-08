@@ -4,7 +4,11 @@ LABEL maintainer="Clivern <hello@clivern.com>"
 
 WORKDIR /app
 
-COPY main.go ./
+COPY go.mod go.sum ./
+
+RUN go mod download
+
+COPY main.go .
 
 RUN go build -o main .
 
