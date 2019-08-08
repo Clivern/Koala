@@ -1,0 +1,22 @@
+version: '3'
+services:
+    redis:
+        image: 'redis:5.0.5-alpine'
+        volumes:
+            - 'koala_redis:/data'
+        restart: unless-stopped
+    koala:
+        image: 'docker.pkg.github.com/clivern/koala/koala:1.0.0'
+        ports:
+            - "8080:8080"
+        depends_on:
+            - redis
+        environment:
+            KOALA_PORT: "8080"
+            KOALA_REDIS_HOST: "redis"
+            KOALA_REDIS_PORT: "6379"
+            KOALA_REDIS_PASSWORD: 
+        restart: unless-stopped
+
+volumes:
+    koala_redis: null
