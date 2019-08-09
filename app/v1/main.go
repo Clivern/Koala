@@ -45,12 +45,7 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
-		log.Printf("{\"Path\":\"/\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
-			time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			host,
-			version,
-		)
-
+		LogRequest("/", host, version)
 		c.JSON(http.StatusOK, gin.H{
 			"TIME":     time.Now().Format("Mon Jan 2 15:04:05 2006"),
 			"HOSTNAME": host,
@@ -62,12 +57,7 @@ func main() {
 	})
 
 	r.GET("/_health", func(c *gin.Context) {
-		log.Printf("{\"Path\":\"/_health\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
-			time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			host,
-			version,
-		)
-
+		LogRequest("/_health", host, version)
 		hostHealth, _ := driver.Get(fmt.Sprintf("koala_host_health__%s", host))
 		kindHealth, _ := driver.Get("koala_kind_health")
 
@@ -84,12 +74,7 @@ func main() {
 	})
 
 	r.GET("/_change", func(c *gin.Context) {
-		log.Printf("{\"Path\":\"/_change\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
-			time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			host,
-			version,
-		)
-
+		LogRequest("/_change", host, version)
 		value, _ := driver.Get("koala_state")
 
 		state := 1
@@ -110,12 +95,7 @@ func main() {
 	})
 
 	r.GET("/_state", func(c *gin.Context) {
-		log.Printf("{\"Path\":\"/_state\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
-			time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			host,
-			version,
-		)
-
+		LogRequest("/_state", host, version)
 		value, _ := driver.Get("koala_state")
 
 		state, _ := strconv.Atoi(value)
@@ -129,12 +109,7 @@ func main() {
 	})
 
 	r.GET("/_hostup", func(c *gin.Context) {
-		log.Printf("{\"Path\":\"/_hostup\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
-			time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			host,
-			version,
-		)
-
+		LogRequest("/_hostup", host, version)
 		driver.Set(fmt.Sprintf("koala_host_health__%s", host), "UP", 0)
 
 		c.JSON(http.StatusOK, gin.H{
@@ -143,12 +118,7 @@ func main() {
 	})
 
 	r.GET("/_hostdown", func(c *gin.Context) {
-		log.Printf("{\"Path\":\"/_hostdown\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
-			time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			host,
-			version,
-		)
-
+		LogRequest("/_hostdown", host, version)
 		driver.Set(fmt.Sprintf("koala_host_health__%s", host), "DOWN", 0)
 
 		c.JSON(http.StatusOK, gin.H{
@@ -157,12 +127,7 @@ func main() {
 	})
 
 	r.GET("/_kindup", func(c *gin.Context) {
-		log.Printf("{\"Path\":\"/_kindup\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
-			time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			host,
-			version,
-		)
-
+		LogRequest("/_kindup", host, version)
 		driver.Set("koala_kind_health", "UP", 0)
 
 		c.JSON(http.StatusOK, gin.H{
@@ -171,12 +136,7 @@ func main() {
 	})
 
 	r.GET("/_kinddown", func(c *gin.Context) {
-		log.Printf("{\"Path\":\"/_kinddown\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
-			time.Now().Format("Mon Jan 2 15:04:05 2006"),
-			host,
-			version,
-		)
-
+		LogRequest("/_kinddown", host, version)
 		driver.Set("koala_kind_health", "DOWN", 0)
 
 		c.JSON(http.StatusOK, gin.H{
@@ -185,4 +145,14 @@ func main() {
 	})
 
 	r.Run(fmt.Sprintf(":%s", os.Getenv("KOALA_PORT")))
+}
+
+// LogRequest logs some data
+func LogRequest(path, host, version string) {
+	log.Printf(`{"Path":"%s", "time":"%s", "Hostname":"%s", "Version":"%s"}`,
+		path,
+		time.Now().Format("Mon Jan 2 15:04:05 2006"),
+		host,
+		version,
+	)
 }
