@@ -9,8 +9,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 	"strconv"
+	"time"
 
 	"github.com/clivern/hippo"
 	"github.com/gin-gonic/gin"
@@ -18,7 +18,7 @@ import (
 
 func main() {
 	host, _ := os.Hostname()
-	version := "1.0.0"
+	version := "1.0.2"
 
 	driver := hippo.NewRedisDriver(
 		fmt.Sprintf("%s:%s", os.Getenv("KOALA_REDIS_HOST"), os.Getenv("KOALA_REDIS_PORT")),
@@ -52,9 +52,9 @@ func main() {
 		)
 
 		c.JSON(http.StatusOK, gin.H{
-			"TIME": time.Now().Format("Mon Jan 2 15:04:05 2006"),
+			"TIME":     time.Now().Format("Mon Jan 2 15:04:05 2006"),
 			"HOSTNAME": host,
-			"VERSION": version,
+			"VERSION":  version,
 		})
 	})
 	r.GET("/favicon.ico", func(c *gin.Context) {
@@ -83,7 +83,6 @@ func main() {
 		})
 	})
 
-
 	r.GET("/_change", func(c *gin.Context) {
 		log.Printf("{\"Path\":\"/_change\", \"time\":\"%s\", \"Hostname\":\"%s\", \"Version\":\"%s\"}",
 			time.Now().Format("Mon Jan 2 15:04:05 2006"),
@@ -103,10 +102,10 @@ func main() {
 		driver.Set("koala_state", strconv.Itoa(state), 0)
 
 		c.JSON(http.StatusOK, gin.H{
-			"TIME": time.Now().Format("Mon Jan 2 15:04:05 2006"),
+			"TIME":     time.Now().Format("Mon Jan 2 15:04:05 2006"),
 			"HOSTNAME": host,
-			"VERSION": version,
-			"STATE": state,
+			"VERSION":  version,
+			"STATE":    state,
 		})
 	})
 
@@ -122,10 +121,10 @@ func main() {
 		state, _ := strconv.Atoi(value)
 
 		c.JSON(http.StatusOK, gin.H{
-			"TIME": time.Now().Format("Mon Jan 2 15:04:05 2006"),
+			"TIME":     time.Now().Format("Mon Jan 2 15:04:05 2006"),
 			"HOSTNAME": host,
-			"VERSION": version,
-			"STATE": state,
+			"VERSION":  version,
+			"STATE":    state,
 		})
 	})
 
