@@ -49,7 +49,12 @@ $ curl http://localhost:8080/_kinddown -v
 ### Testing Application Deployment v1:
 
 
-### Chaos Maker v1:
+### Chaos Maker:
+
+We gonna use [chaoskube](https://github.com/linki/chaoskube) to periodically kill random pods on the cluster.
+
+
+### Monitoring v1:
 
 
 ## References
