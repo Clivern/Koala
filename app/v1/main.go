@@ -149,7 +149,7 @@ func main() {
 
 // LogRequest logs some data
 func LogRequest(path, host, version string) {
-	log.Printf(`{"Path":"%s", "time":"%s", "Hostname":"%s", "Version":"%s"}`,
+	log.Printf(`{"Path":"%s", "Time":"%s", "Hostname":"%s", "Version":"%s"}`,
 		path,
 		time.Now().Format("Mon Jan 2 15:04:05 2006"),
 		host,
