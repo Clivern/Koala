@@ -64,6 +64,9 @@ To get pod logs
 ```
 $ kubectl logs ${podName}
 $ kubectl logs ${podName} -c ${containerName}
+
+# Obtaining the application log of a crashed container "you want to figure out why the previous container terminated"
+$ kubectl logs ${podName} --previous
 ```
 
 To talk to a pod without going through a service, you can forward a local port to a port of the pod
@@ -251,3 +254,189 @@ To delete all pods, services and ReplicationController withing the current names
 ```
 $ kubectl delete all --all
 ```
+
+
+Kubernetes can check if a container is still alive through liveness probes. You can specify a liveness probe for each container in the pod’s specification. Kubernetes will periodi- cally execute the probe and restart the container if the probe fails.
+
+```yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/instance: wordpress-abcxzy
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/part-of: wordpress
+    app.kubernetes.io/version: "5.7.21"
+  name: koala
+  namespace: custom-namespace
+spec:
+  containers:
+    -
+      image: clivern/koala
+      livenessProbe:
+        httpGet:
+          path: /_health
+          port: 8080
+      name: front
+      ports:
+        -
+          containerPort: 8080
+          protocol: TCP
+```
+
+The `periodSeconds` field specifies that the kubelet should perform a liveness probe every 5 seconds. The `initialDelaySeconds` field tells the kubelet that it should wait 5 second before performing the first probe.
+
+```yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/instance: wordpress-abcxzy
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/part-of: wordpress
+    app.kubernetes.io/version: "5.7.21"
+  name: koala
+  namespace: custom-namespace
+spec:
+  containers:
+    -
+      image: clivern/koala
+      livenessProbe:
+        exec:
+          command:
+            - cat
+            - /tmp/healthy
+        initialDelaySeconds: 5
+        periodSeconds: 5
+      name: front
+      ports:
+        -
+          containerPort: 8080
+          protocol: TCP
+```
+
+to define HTTP headers for `livenessProbe`
+
+```yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/instance: wordpress-abcxzy
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/part-of: wordpress
+    app.kubernetes.io/version: "5.7.21"
+  name: koala
+  namespace: custom-namespace
+spec:
+  containers:
+    -
+      image: clivern/koala
+      livenessProbe:
+        httpGet:
+          path: /_health
+          port: 8080
+        httpHeaders:
+          -
+            name: Custom-Header
+            value: Awesome
+        initialDelaySeconds: 3
+        periodSeconds: 3
+      name: front
+      ports:
+        -
+          containerPort: 8080
+          protocol: TCP
+```
+
+a TCP check is quite similar to an HTTP check.
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: goproxy
+  labels:
+    app: goproxy
+spec:
+  containers:
+  - name: goproxy
+    image: k8s.gcr.io/goproxy:0.1
+    ports:
+    - containerPort: 8080
+    readinessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    livenessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 20
+```
+
+You can use a named ContainerPort for HTTP or TCP liveness checks:
+
+```yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/instance: wordpress-abcxzy
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/part-of: wordpress
+    app.kubernetes.io/version: "5.7.21"
+  name: koala
+  namespace: custom-namespace
+spec:
+  containers:
+    -
+      image: clivern/koala
+      livenessProbe:
+        httpGet:
+          path: /_health
+          port: liveness-port
+        httpHeaders:
+          -
+            name: Custom-Header
+            value: Awesome
+        initialDelaySeconds: 3
+        periodSeconds: 3
+      name: front
+      ports:
+        -
+          containerPort: 8080
+          name: liveness-port
+          protocol: TCP
+```
+
+Sometimes, applications are temporarily unable to serve traffic "might need to load large data or configuration files during startup". In such cases, you don’t want to kill the application, but you don’t want to send it requests either. Kubernetes provides `readiness probes` to detect and mitigate these situations. A pod with containers reporting that they are not ready does not receive traffic through Kubernetes Services.
+
+Probes have a number of fields that you can use to more precisely control the behavior of liveness and readiness checks:
+
+- `initialDelaySeconds`: Number of seconds after the container has started before liveness or readiness probes are initiated.
+- `periodSeconds`: How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1.
+- `timeoutSeconds`: Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1.
+- `successThreshold`: Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
+- `failureThreshold`: When a Pod starts and the probe fails, Kubernetes will try failureThreshold times before giving up. Giving up in case of liveness probe means restarting the Pod. In case of readiness probe the Pod will be marked Unready. Defaults to 3. Minimum value is 1.
+
+HTTP probes have additional fields that can be set on `httpGet`:
+
+- `host`: Host name to connect to, defaults to the pod IP. You probably want to set “Host” in httpHeaders instead.
+- `scheme`: Scheme to use for connecting to the host (HTTP or HTTPS). Defaults to HTTP.
+- `path`: Path to access on the HTTP server.
+- `httpHeaders`: Custom headers to set in the request. HTTP allows repeated headers.
+- `port`: Name or number of the port to access on the container. Number must be in the range 1 to 65535.
