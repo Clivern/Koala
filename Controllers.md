@@ -96,7 +96,7 @@ Delete replication controller with the managed pods
 $ kubectl delete rc koala
 ```
 
-Initially, `ReplicationControllers` were the only Kubernetes component for replicating pods and rescheduling them when nodes failed. Later, a similar resource called a `ReplicaSet` was introduced. It’s a new generation of `ReplicationController` and replaces it completely (`ReplicationControllers` will eventually be deprecated).
+Initially `ReplicationControllers` were the only Kubernetes component for replicating pods and rescheduling them when nodes failed. Later, a similar resource called a `ReplicaSet` was introduced. It’s a new generation of `ReplicationController` and replaces it completely (`ReplicationControllers` will eventually be deprecated).
 
 
 ### ReplicaSet
