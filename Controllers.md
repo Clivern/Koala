@@ -78,7 +78,7 @@ $ kubectl label pod ${podName} app=foo --overwrite
 $ kubectl get pods --show-labels
 ```
 
-Editing the RC definition or scaling up or scaling down
+Editing the `ReplicationController` definition or scaling up or scaling down
 
 ```
 $ kubectl edit rc koala
