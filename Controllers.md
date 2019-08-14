@@ -43,9 +43,6 @@ metadata:
 spec:
   replicas: 3
 template:
-  metadata:
-    labels:
-      app: koala
   spec:
     containers:
       -
@@ -101,3 +98,67 @@ Initially `ReplicationControllers` were the only Kubernetes component for replic
 
 ### ReplicaSet
 
+We’ll rewrite the `ReplicationController` into a `ReplicaSet`
+
+```yaml
+---
+apiVersion: apps/v1beta2
+kind: ReplicaSet
+metadata:
+  name: koala
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: koala
+template:
+  metadata:
+    labels:
+      app: koala
+  spec:
+    containers:
+      -
+        image: clivern/koala
+        name: koala
+        ports:
+          -
+            containerPort: 8080
+```
+
+The main improvements of `ReplicaSets` over `ReplicationControllers` are their more expressive label selectors. You intentionally used the simpler `matchLabels` selector in the first `ReplicaSet` example to see that `ReplicaSets` are no different from `ReplicationControllers`.
+
+Now, you’ll rewrite the selector to use the more powerful `matchExpressions` property, as shown in the following listing.
+
+```yaml
+selector:
+  matchExpressions:
+    -
+      key: app
+      operator: In
+      values:
+        - koala
+```
+
+You can add additional expressions to the selector. As in the example, each expression must contain a key, an operator, and possibly (depending on the operator) a list of values. You’ll see four valid operators:
+
+- `In` Label’s value must match one of the specified values.
+- `NotIn` Label’s value must not match any of the specified values.
+- `Exists` Pod must include a label with the specified key (the value isn’t important). When using this operator, you shouldn’t specify the values field.
+- `DoesNotExist` Pod must not include a label with the specified key. The values property must not be specified.
+
+If you specify multiple expressions, all those expressions must evaluate to true for the selector to match a pod. If you specify both matchLabels and matchExpressions, all the labels must match and all the expressions must evaluate to true for the pod to match the selector.
+
+
+You can examine the `ReplicaSet` with `kubectl get` and `kubectl describe`
+
+```
+$ kubectl get rs
+```
+
+You can delete the `ReplicaSet` the same way you’d delete a `ReplicationController`
+
+```
+$ kubectl delete rs koala
+```
+
+Deleting the `ReplicaSet` should delete all the pods. List the pods to confirm that’s the case.
