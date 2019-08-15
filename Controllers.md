@@ -162,3 +162,27 @@ $ kubectl delete rs koala
 ```
 
 Deleting the `ReplicaSet` should delete all the pods. List the pods to confirm that’s the case.
+
+
+### DaemonSet
+
+A `DaemonSet` ensures that all (or some) Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to them. As nodes are removed from the cluster, those Pods are garbage collected. Deleting a `DaemonSet` will clean up the Pods it created.
+
+Some typical uses of a `DaemonSet` are:
+
+- Running a cluster storage daemon, such as `glusterd`, `ceph`, on each node.
+- Running a logs collection daemon on every node, such as `fluentd` or `logstash`.
+- Running a node monitoring daemon on every node, such as `Prometheus` Node Exporter, `Sysdig` Agent.
+
+You can describe a `DaemonSet` in a YAML file like the following:
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd-elasticsearch
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+spec:
+```
