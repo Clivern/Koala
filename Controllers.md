@@ -177,12 +177,85 @@ Some typical uses of a `DaemonSet` are:
 You can describe a `DaemonSet` in a YAML file like the following:
 
 ```yaml
-apiVersion: apps/v1
+---
+apiVersion: apps/v1beta2
 kind: DaemonSet
 metadata:
-  name: fluentd-elasticsearch
-  namespace: kube-system
-  labels:
-    k8s-app: fluentd-logging
+  name: ssd-monitor
 spec:
+  selector:
+    matchLabels:
+      app: ssd-monitor
+  template:
+    metadata:
+      labels:
+        app: ssd-monitor
+    spec:
+      containers:
+        -
+          image: luksa/ssd-monitor
+          name: main
+      nodeSelector:
+        disk: ssd
 ```
+
+Let's create the `DaemonSet` from the YAML file
+
+```
+$ kubectl create -f ssd-monitor-daemonset.yaml
+```
+
+Let’s see the created `DaemonSet`
+
+```
+$ kubectl get ds
+```
+
+Those zeroes look strange. Didn’t the `DaemonSet` deploy any pods? List the pods:
+
+```
+$ kubectl get po
+
+No resources found.
+```
+
+```
+$ kubectl get node
+
+NAME       STATUS    AGE       VERSION
+minikube   Ready     4d        v1.6.0
+```
+
+Now, add the `disk=ssd` label to one of your nodes like this:
+
+```
+$ kubectl label node minikube disk=ssd
+```
+
+The `DaemonSet` should have created one pod now. Let’s see:
+
+```
+$ kubectl get po
+
+NAME                READY     STATUS    RESTARTS   AGE
+ssd-monitor-hgxwq   1/1       Running   0          35s
+```
+
+What happens if you change the node’s label?
+
+```
+$ kubectl label node minikube disk=hdd --overwrite
+
+node "minikube" labeled
+```
+
+Let’s see if the change has any effect on the pod that was running on that node:
+
+```
+$ kubectl get po
+
+NAME                READY     STATUS        RESTARTS   AGE
+ssd-monitor-hgxwq   1/1       Terminating   0          4m
+```
+
+The pod is being terminated.
