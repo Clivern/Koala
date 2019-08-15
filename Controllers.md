@@ -259,3 +259,96 @@ ssd-monitor-hgxwq   1/1       Terminating   0          4m
 ```
 
 The pod is being terminated.
+
+
+### The Job Resource
+
+Kubernetes allows you to run a pod whose container isn’t restarted when the process running inside finishes successfully. Once it does, the pod is considered complete.
+
+```yaml
+--- 
+apiVersion: batch/v1
+kind: Job
+metadata: 
+  name: batch-job
+spec: 
+  template: 
+    metadata: 
+      labels: 
+        app: batch-job
+    spec: 
+      containers: 
+        - 
+          image: luksa/batch-job
+          name: main
+      restartPolicy: OnFailure
+```
+
+In a pod’s specification, you can specify what Kubernetes should do when the processes running in the container finish. This is done through the `restartPolicy`, which defaults to Always. Job pods can’t use the default policy, because they’re not meant to run indefinitely. Therefore, you need to explicitly set the restart policy to either `OnFailure` or `Never`.
+
+After you create this Job with the `kubectl create` command, you should see it start up a pod immediately:
+
+```
+$ kubectl get jobs
+
+NAME        DESIRED   SUCCESSFUL   AGE
+batch-job   1         0            2s
+```
+
+```
+$ kubectl get po
+NAME              READY     STATUS    RESTARTS   AGE
+batch-job-28qf4   1/1       Running   0          4s
+```
+
+```
+$ kubectl get po -a
+
+NAME              READY     STATUS      RESTARTS   AGE
+batch-job-28qf4   0/1       Completed   0          2m
+```
+
+The reason the pod isn’t deleted when it completes is to allow you to examine its logs; for example:
+
+```
+$ kubectl logs batch-job-28qf4
+Fri Apr 29 09:58:22 UTC 2016 Batch job starting
+Fri Apr 29 10:00:22 UTC 2016 Finished succesfully
+```
+
+If you need a Job to run more than once, you set `completions` to how many times you want the Job’s pod to run. The following listing shows an example.
+
+```yaml
+--- 
+apiVersion: batch/v1
+kind: Job
+metadata: 
+  name: multi-completion-batch-job
+spec: 
+  completions: 5
+  template: ~
+```
+
+Instead of running single Job pods one after the other, you can also make the Job run multiple pods in parallel. You specify how many pods are allowed to run in parallel with the `parallelism` Job spec property
+
+```yaml
+--- 
+apiVersion: batch/v1
+kind: Job
+metadata: 
+  name: multi-completion-batch-job
+spec: 
+  completions: 5
+  parallelism: 2
+  template: ~
+```
+
+By setting `parallelism` to 2, the Job creates two pods and runs them in parallel:
+
+```
+$ kubectl get po
+
+NAME                               READY   STATUS     RESTARTS   AGE
+multi-completion-batch-job-lmmnk   1/1     Running    0          21s
+multi-completion-batch-job-qx4nq   1/1     Running    0          21s
+```
