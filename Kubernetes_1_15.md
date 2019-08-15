@@ -162,3 +162,7 @@ Working With Kubernetes
 
 - [Pods](Pods.md)
 - [Controllers](Controllers.md)
+- [Services, Load Balancing, and Networking](Services_LoadBalancing_Networking.md)
+- [Storage](Storage.md)
+- [Configuration](Configuration.md)
+
