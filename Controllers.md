@@ -266,19 +266,19 @@ The pod is being terminated.
 Kubernetes allows you to run a pod whose container isn’t restarted when the process running inside finishes successfully. Once it does, the pod is considered complete.
 
 ```yaml
---- 
+---
 apiVersion: batch/v1
 kind: Job
-metadata: 
+metadata:
   name: batch-job
-spec: 
-  template: 
-    metadata: 
-      labels: 
+spec:
+  template:
+    metadata:
+      labels:
         app: batch-job
-    spec: 
-      containers: 
-        - 
+    spec:
+      containers:
+        -
           image: luksa/batch-job
           name: main
       restartPolicy: OnFailure
@@ -319,12 +319,12 @@ Fri Apr 29 10:00:22 UTC 2016 Finished succesfully
 If you need a Job to run more than once, you set `completions` to how many times you want the Job’s pod to run. The following listing shows an example.
 
 ```yaml
---- 
+---
 apiVersion: batch/v1
 kind: Job
-metadata: 
+metadata:
   name: multi-completion-batch-job
-spec: 
+spec:
   completions: 5
   template: ~
 ```
@@ -332,12 +332,12 @@ spec:
 Instead of running single Job pods one after the other, you can also make the Job run multiple pods in parallel. You specify how many pods are allowed to run in parallel with the `parallelism` Job spec property
 
 ```yaml
---- 
+---
 apiVersion: batch/v1
 kind: Job
-metadata: 
+metadata:
   name: multi-completion-batch-job
-spec: 
+spec:
   completions: 5
   parallelism: 2
   template: ~
@@ -351,4 +351,52 @@ $ kubectl get po
 NAME                               READY   STATUS     RESTARTS   AGE
 multi-completion-batch-job-lmmnk   1/1     Running    0          21s
 multi-completion-batch-job-qx4nq   1/1     Running    0          21s
+```
+
+
+### The CronJob Resource
+
+Job resources will be created from the CronJob resource at approximately the scheduled time. The Job then creates the pods.
+
+```yaml
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: batch-job-every-fifteen-minutes
+spec:
+  schedule: "0,15,30,45 * * * *"
+  jobTemplate:
+    metadata:
+      labels:
+        app: periodic-batch-job
+    spec:
+      containers:
+        -
+          image: luksa/batch-job
+          name: main
+      restartPolicy: OnFailure
+```
+
+It may happen that the Job or pod is created and run relatively late. In that case, you can specify a deadline by specifying the `startingDeadlineSeconds` field
+
+```yaml
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: batch-job-every-fifteen-minutes
+spec:
+  schedule: "0,15,30,45 * * * *"
+  startingDeadlineSeconds: 15
+  jobTemplate:
+    metadata:
+      labels:
+        app: periodic-batch-job
+    spec:
+      containers:
+        -
+          image: luksa/batch-job
+          name: main
+      restartPolicy: OnFailure
 ```
