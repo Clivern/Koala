@@ -121,3 +121,31 @@ spec:
 ```
 
 The biggest benefit of doing so is that it enables you to change port numbers later without having to change the service spec.
+
+Discovering services through environment variables
+
+```
+$ kubectl exec ${podName} env
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=kubia-3inly
+KUBERNETES_SERVICE_HOST=10.111.240.1 KUBERNETES_SERVICE_PORT=443
+...
+KUBIA_SERVICE_HOST=10.111.249.153
+KUBIA_SERVICE_PORT=80
+```
+
+*NOTE: Dashes in the service name are converted to underscores and all letters are uppercased when the service name is used as the prefix in the environment variable’s name*
+
+Discovering services through DNS by opening a connection to the following FQDN
+
+```
+backend-database.default.svc.cluster.local
+```
+
+`backend-database` corresponds to the service name, `default` stands for the namespace the service is defined in, and `svc.cluster.local` is a configurable cluster domain suffix used in all cluster local service names.
+
+*NOTE: The client must still know the service’s port number. If the service is using a standard port (for example, 80 for HTTP), that shouldn’t be a problem. If not, the client can get the port number from the environment variable.*
+
+
+*NOTE: The service’s cluster IP is a virtual IP, and only has meaning when combined with the service port. So curl-ing the service works, but pinging doesn’t*
