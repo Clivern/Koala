@@ -250,9 +250,9 @@ kubia-nodeport   10.111.254.223   <nodes>       80:30123/TCP   2m
 
 The service is accessible at the following addresses:
 
-- 10.11.254.223:80
-- <1st node’sIP>:30123
-- <2nd node’sIP>:30123, and so on.
+- `10.11.254.223:80`
+- `<1st node’sIP>:30123`
+- `<2nd node’sIP>:30123`, and so on.
 
 Creating A `LoadBalancer` Service:
 
