@@ -137,15 +137,22 @@ KUBIA_SERVICE_PORT=80
 
 *NOTE: Dashes in the service name are converted to underscores and all letters are uppercased when the service name is used as the prefix in the environment variable’s name*
 
-Discovering services through DNS by opening a connection to the following FQDN
-
-```
-backend-database.default.svc.cluster.local
-```
-
-`backend-database` corresponds to the service name, `default` stands for the namespace the service is defined in, and `svc.cluster.local` is a configurable cluster domain suffix used in all cluster local service names.
+Discovering services through DNS by opening a connection to this FQDN `backend-database.default.svc.cluster.local`. `backend-database` corresponds to the service name, `default` stands for the namespace the service is defined in, and `svc.cluster.local` is a configurable cluster domain suffix used in all cluster local service names.
 
 *NOTE: The client must still know the service’s port number. If the service is using a standard port (for example, 80 for HTTP), that shouldn’t be a problem. If not, the client can get the port number from the environment variable.*
 
-
 *NOTE: The service’s cluster IP is a virtual IP, and only has meaning when combined with the service port. So curl-ing the service works, but pinging doesn’t*
+
+Services don’t link to pods directly. Instead, a resource sits in between (the Endpoints resource). You may have already noticed endpoints if you used the kubectl describe command on your service.
+
+```
+$ kubectl describe svc ${serviceName}
+```
+
+An Endpoints resource is a list of IP addresses and ports exposing a service. The Endpoints resource is like any other Kubernetes resource, so you can display its basic info with kubectl get:
+
+```
+$ kubectl get endpoints ${endpointName}
+```
+
+Although the pod selector is defined in the service spec, it’s not used directly when redirecting incoming connections. Instead, the selector is used to build a list of IPs and ports, which is then stored in the Endpoints resource. When a client connects to a service, the service proxy selects one of those IP and port pairs and redirects the incoming connection to the server listening at that location.
