@@ -156,3 +156,232 @@ $ kubectl get endpoints ${endpointName}
 ```
 
 Although the pod selector is defined in the service spec, it’s not used directly when redirecting incoming connections. Instead, the selector is used to build a list of IPs and ports, which is then stored in the Endpoints resource. When a client connects to a service, the service proxy selects one of those IP and port pairs and redirects the incoming connection to the server listening at that location.
+
+If you create a service without a pod selector, Kubernetes won’t even create the Endpoints resource (after all, without a selector, it can’t know which pods to include in the service). It’s up to you to create the Endpoints resource to specify the list of endpoints for the service.
+
+This service has no selector defined.
+
+```yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service
+spec:
+  ports:
+    -
+      port: 80
+```
+
+Because you created the service without a selector, the corresponding Endpoints resource hasn’t been created automatically, so it’s up to you to create it.
+
+```yaml
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: external-service
+subsets:
+  -
+    addresses:
+      -
+        ip: "11.11.11.11"
+      -
+        ip: "22.22.22.22"
+    ports:
+      -
+        port: 80
+```
+
+The Endpoints object needs to have the same name as the service and contain the list of target IP addresses and ports for the service. After both the Service and the Endpoints resource are posted to the server, the service is ready to be used like any regular service with a pod selector. Containers created after the service is created will include the environment variables for the service, and all connections to its IP:port pair will be load balanced between the service’s endpoints.
+
+To create a service that serves as an alias for an external service, you create a Service resource with the type field set to `ExternalName`. For example, let’s imagine there’s a public API available at `api.somecompany.com`.
+
+```yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service
+spec:
+  externalName: someapi.somecompany.com
+  ports:
+    -
+      port: 80
+  type: ExternalName
+```
+
+After the service is created, pods can connect to the external service through the `external-service.default.svc.cluster.local` domain name
+
+You have a few ways to make a service accessible externally:
+
+- Setting the service type to `NodePort`—For a `NodePort` service, each cluster node opens a port on the node itself (hence the name) and redirects traffic received on that port to the underlying service. The service isn’t accessible only at the internal cluster IP and port, but also through a dedicated port on all nodes.
+
+- Setting the service type to `LoadBalancer`, an extension of the `NodePort` type—This makes the service accessible through a dedicated load balancer, provisioned from the cloud infrastructure Kubernetes is running on. The load balancer redirects traffic to the node port across all the nodes. Clients connect to the service through the load balancer’s IP.
+
+- Creating an Ingress resource, a radically different mechanism for exposing multiple services through a single IP address—It operates at the HTTP level (network layer 7) and can thus offer more features than layer 4 services can.
+
+
+Creating A `NodePort` Service:
+
+```yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia-nodeport
+spec:
+  ports:
+    -
+      nodePort: 30123 // the service will be accessible through port 30123 of each of your cluster nodes.
+      port: 80 // This is the port of the service’s internal cluster IP.
+      targetPort: 8080 // This is the target port of the backing pods.
+  selector:
+    app: kubia
+  type: NodePort
+```
+
+```
+$ kubectl get svc kubia-nodeport
+
+NAME             CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubia-nodeport   10.111.254.223   <nodes>       80:30123/TCP   2m
+```
+
+The service is accessible at the following addresses:
+
+- 10.11.254.223:80
+- <1st node’sIP>:30123
+- <2nd node’sIP>:30123, and so on.
+
+Creating A `LoadBalancer` Service:
+
+```yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia-loadbalancer
+spec:
+  ports:
+    -
+      port: 80
+      targetPort: 8080
+  selector:
+    app: kubia
+  type: LoadBalancer
+```
+
+After you create the service, it takes time for the cloud infrastructure to create the load balancer and write its IP address into the Service object. Once it does that, the IP address will be listed as the external IP address of your service:
+
+```
+$ kubectl get svc kubia-loadbalancer
+
+NAME                 CLUSTER-IP       EXTERNAL-IP      PORT(S)         AGE
+kubia-loadbalancer  10.111.241.153    130.211.53.173   80:32143/TCP      1m
+```
+
+In this case, the load balancer is available at IP `130.211.53.173`, so you can now access the service at that IP address:
+
+```
+$ curl http://130.211.53.173
+
+You've hit kubia-xueq1
+```
+
+Exposing services externally through an Ingress resource:
+
+*Note: Why Ingress are Needed? One important reason is that each LoadBalancer service requires its own load bal- ancer with its own public IP address, whereas an Ingress only requires one, even when providing access to dozens of services. When a client sends an HTTP request to the Ingress, the host and path in the request determine which service the request is forwarded*
+
+
+Creating an Ingress resource
+
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kubia
+spec:
+  rules:
+    -
+      host: kubia.example.com
+      http:
+        paths:
+          -
+            backend:
+              serviceName: kubia-nodeport
+              servicePort: 80
+            path: /
+```
+
+This defines an Ingress with a single rule, which makes sure all HTTP requests received by the Ingress controller, in which the host `kubia.example.com` is requested, will be sent to the `kubia-nodeport` service on port 80.
+
+To access your service through `http://kubia.example.com`, you’ll need to make sure the domain name resolves to the IP of the Ingress controller.
+
+To look up the IP, you need to list Ingresses:
+
+```
+$ kubectl get ingresses
+
+NAME      HOSTS               ADDRESS          PORTS     AGE
+kubia     kubia.example.com   192.168.99.100   80        29m
+```
+
+Exposing multiple services through the same Ingress
+
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kubia
+spec:
+  rules:
+    -
+      host: kubia.example.com
+      http:
+        paths:
+          -
+            backend:
+              serviceName: kubia  // Requests to kubia.example.com/kubia will be routed to the kubia service.
+              servicePort: 80
+            path: /kubia
+          -
+            backend:
+              serviceName: bar // Requests to kubia.example.com/bar will be routed to the bar service.
+              servicePort: 80
+            path: /foo
+```
+
+You can use an Ingress to map to different services based on the host in the HTTP request instead of (only) the path
+
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kubia
+spec:
+  rules:
+    -
+      host: foo.example.com
+      http:
+        paths:
+          -
+            backend:
+              serviceName: foo
+              servicePort: 80
+            path: /
+    -
+      host: bar.example.com
+      http:
+        paths:
+          -
+            backend:
+              serviceName: bar
+              servicePort: 80
+            path: /
+```
+
+Requests received by the controller will be forwarded to either service foo or bar, depending on the Host header in the request.
