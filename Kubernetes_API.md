@@ -12,7 +12,8 @@ The Downward API enables you to expose the pod’s own metadata to the processes
 - The pod’s IP address
 - The namespace the pod belongs to
 - The name of the node the pod is running on
-- The name of the service account the pod is running under  The CPU and memory requests for each container
+- The name of the service account the pod is running under
+- The CPU and memory requests for each container
 - The CPU and memory limits for each container
 - The pod’s labels
 - The pod’s annotations
