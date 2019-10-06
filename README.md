@@ -6,18 +6,11 @@
 
 ## Documentation
 
-### Testing Application v1:
 
-Config the application
+### Getting Started
 
-```console
-$ export KOALA_PORT="8080"
-$ export KOALA_REDIS_HOST="127.0.0.1"
-$ export KOALA_REDIS_PORT="6379"
-$ export KOALA_REDIS_PASSWORD=
-```
 
-Application Endpoints
+### Application Endpoints
 
 ```console
 # Current host info
@@ -44,12 +37,6 @@ $ curl http://localhost:8080/_kindup -v
 # Get all hosts down
 $ curl http://localhost:8080/_kinddown -v
 ```
-
-
-### Testing Application Deployment v1:
-
-
-### Monitoring v1:
 
 
 ## Third-party
