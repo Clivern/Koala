@@ -15,7 +15,7 @@ services:
             KOALA_PORT: "8080"
             KOALA_REDIS_HOST: "redis"
             KOALA_REDIS_PORT: "6379"
-            KOALA_REDIS_PASSWORD: 
+            KOALA_REDIS_PASSWORD:
         restart: unless-stopped
 
 volumes:
