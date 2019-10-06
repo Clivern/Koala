@@ -2,6 +2,9 @@
     <img alt="Koala Logo" src="https://raw.githubusercontent.com/Clivern/Koala/master/assets/img/koala.png" height="80" />
     <h3 align="center">Koala</h3>
     <p align="center">Kubernetes Playground for Testing Purposes</p>
+    <p align="center">
+        <a href="https://hub.docker.com/r/clivern/koala"><img src="https://img.shields.io/badge/Docker-Latest-orange"></a>
+    </p>
 </p>
 
 ## Documentation
