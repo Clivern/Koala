@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.13.6
 
 LABEL maintainer="Clivern <hello@clivern.com>"
 
