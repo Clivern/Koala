@@ -18,7 +18,7 @@ import (
 
 func main() {
 	host, _ := os.Hostname()
-	version := "1.0.2"
+	version := "1.0.4"
 
 	driver := hippo.NewRedisDriver(
 		fmt.Sprintf("%s:%s", os.Getenv("KOALA_REDIS_HOST"), os.Getenv("KOALA_REDIS_PORT")),
