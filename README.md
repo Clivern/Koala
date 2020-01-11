@@ -1,5 +1,5 @@
 <p align="center">
-    <img alt="Koala Logo" src="https://raw.githubusercontent.com/Clivern/Koala/master/assets/img/koala.png" height="80" />
+    <img alt="Kubernets Logo" src="https://cdn.worldvectorlogo.com/logos/kubernets.svg" height="150" />
     <h3 align="center">Koala</h3>
     <p align="center">Kubernetes Playground for Testing Purposes</p>
     <p align="center">
