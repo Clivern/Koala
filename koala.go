@@ -26,6 +26,8 @@ func main() {
 	host, _ := os.Hostname()
 	release := fmt.Sprintf("%v, commit %v, built at %v", version, commit, date)
 
+	fmt.Printf("Koala %s started\n", release)
+
 	driver := hippo.NewRedisDriver(
 		fmt.Sprintf("%s:%s", os.Getenv("KOALA_REDIS_HOST"), os.Getenv("KOALA_REDIS_PORT")),
 		os.Getenv("KOALA_REDIS_PASSWORD"),
