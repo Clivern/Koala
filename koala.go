@@ -16,9 +16,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 	host, _ := os.Hostname()
-	version := "1.0.4"
+	release := fmt.Sprintf("%v, commit %v, built at %v", version, commit, date)
 
 	driver := hippo.NewRedisDriver(
 		fmt.Sprintf("%s:%s", os.Getenv("KOALA_REDIS_HOST"), os.Getenv("KOALA_REDIS_PORT")),
@@ -45,11 +51,11 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
-		LogRequest("/", host, version)
+		LogRequest("/", host, release)
 		c.JSON(http.StatusOK, gin.H{
 			"TIME":     time.Now().Format("Mon Jan 2 15:04:05 2006"),
 			"HOSTNAME": host,
-			"VERSION":  version,
+			"RELEASE":  release,
 		})
 	})
 	r.GET("/favicon.ico", func(c *gin.Context) {
@@ -57,7 +63,7 @@ func main() {
 	})
 
 	r.GET("/_health", func(c *gin.Context) {
-		LogRequest("/_health", host, version)
+		LogRequest("/_health", host, release)
 		hostHealth, _ := driver.Get(fmt.Sprintf("koala_host_health__%s", host))
 		kindHealth, _ := driver.Get("koala_kind_health")
 
@@ -74,7 +80,7 @@ func main() {
 	})
 
 	r.GET("/_change", func(c *gin.Context) {
-		LogRequest("/_change", host, version)
+		LogRequest("/_change", host, release)
 		value, _ := driver.Get("koala_state")
 
 		state := 1
@@ -89,13 +95,13 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"TIME":     time.Now().Format("Mon Jan 2 15:04:05 2006"),
 			"HOSTNAME": host,
-			"VERSION":  version,
+			"RELEASE":  release,
 			"STATE":    state,
 		})
 	})
 
 	r.GET("/_state", func(c *gin.Context) {
-		LogRequest("/_state", host, version)
+		LogRequest("/_state", host, release)
 		value, _ := driver.Get("koala_state")
 
 		state, _ := strconv.Atoi(value)
@@ -103,13 +109,13 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"TIME":     time.Now().Format("Mon Jan 2 15:04:05 2006"),
 			"HOSTNAME": host,
-			"VERSION":  version,
+			"RELEASE":  release,
 			"STATE":    state,
 		})
 	})
 
 	r.GET("/_hostup", func(c *gin.Context) {
-		LogRequest("/_hostup", host, version)
+		LogRequest("/_hostup", host, release)
 		driver.Set(fmt.Sprintf("koala_host_health__%s", host), "UP", 0)
 
 		c.JSON(http.StatusOK, gin.H{
@@ -118,7 +124,7 @@ func main() {
 	})
 
 	r.GET("/_hostdown", func(c *gin.Context) {
-		LogRequest("/_hostdown", host, version)
+		LogRequest("/_hostdown", host, release)
 		driver.Set(fmt.Sprintf("koala_host_health__%s", host), "DOWN", 0)
 
 		c.JSON(http.StatusOK, gin.H{
@@ -127,7 +133,7 @@ func main() {
 	})
 
 	r.GET("/_kindup", func(c *gin.Context) {
-		LogRequest("/_kindup", host, version)
+		LogRequest("/_kindup", host, release)
 		driver.Set("koala_kind_health", "UP", 0)
 
 		c.JSON(http.StatusOK, gin.H{
@@ -136,7 +142,7 @@ func main() {
 	})
 
 	r.GET("/_kinddown", func(c *gin.Context) {
-		LogRequest("/_kinddown", host, version)
+		LogRequest("/_kinddown", host, release)
 		driver.Set("koala_kind_health", "DOWN", 0)
 
 		c.JSON(http.StatusOK, gin.H{
@@ -148,11 +154,11 @@ func main() {
 }
 
 // LogRequest logs some data
-func LogRequest(path, host, version string) {
+func LogRequest(path, host, release string) {
 	log.Printf(`{"Path":"%s", "Time":"%s", "Hostname":"%s", "Version":"%s"}`,
 		path,
 		time.Now().Format("Mon Jan 2 15:04:05 2006"),
 		host,
-		version,
+		release,
 	)
 }
