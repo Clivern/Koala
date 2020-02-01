@@ -15,7 +15,7 @@ $ curl -L https://toolbelt.treasuredata.com/sh/install-ubuntu-bionic-td-agent2.5
 $ sudo /etc/init.d/td-agent status
 
 # Test input
-$ curl -X POST -d 'json={"json":"message"}' http://178.62.200.70:8888/debug.test
+$ curl -X POST -d 'json={"json":"message"}' http://x.x.x.x:8888/debug.test
 
 # Output is log by default
 $ tail -f /var/log/td-agent/td-agent.log
