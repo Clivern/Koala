@@ -282,7 +282,7 @@ root@curl:/# curl -H "Authorization: Bearer $TOKEN" https://kubernetes
 ```
 
 ```console
-root@curl:/# NS=$(cat /var/run/secrets/kubernetes.io/ ➥ serviceaccount/namespace)
+root@curl:/# NS=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
 root@curl:/# curl -H "Authorization: Bearer $TOKEN" https://kubernetes/api/v1/namespaces/$NS/pods
 
