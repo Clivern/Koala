@@ -12,7 +12,7 @@ A `Deployment` is also composed of a label selector, a desired replica count, an
 
 ```yaml
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubia
@@ -161,7 +161,7 @@ The fact that the deployment will stuck is a good thing, because if it had conti
 
 ```yaml
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubia
