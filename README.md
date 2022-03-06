@@ -9,10 +9,6 @@
 
 ## Documentation
 
-
-### Getting Started
-
-
 ### Application Endpoints
 
 ```console
