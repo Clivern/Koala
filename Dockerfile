@@ -1,4 +1,4 @@
-FROM golang:1.13.6
+FROM golang:1.22.0
 
 ARG KOALA_VERSION=1.0.6
 
